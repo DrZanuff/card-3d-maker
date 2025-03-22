@@ -1,12 +1,22 @@
-import type { CardTemplateConfigProps } from './CardTemplateConfig.types'
+import { FC } from 'react'
+import { TCardTypes, currentSelectedAtom } from '@/atoms/cardTemplateAtom'
+import { SampleCardEditor } from '../../cardTemplates/sampleCard/SampleCardEditor'
 import './CardTemplateConfig-styles.css'
+import { useAtomValue } from 'jotai'
 
-export function CardTemplateConfig ( { value } : CardTemplateConfigProps ) {
+const CardEditorTypes: Record<TCardTypes, FC> = {
+  snap: SampleCardEditor,
+  magic: SampleCardEditor,
+}
+
+export function CardTemplateConfig() {
+  const type = useAtomValue(currentSelectedAtom)
+
+  const CardEditor = CardEditorTypes[type]
 
   return (
-    <div className={"CardTemplateConfig-container"}>
-      <h1>CardTemplateConfig</h1>
-      <h2>{value}</h2>
+    <div className={'CardTemplateConfig-container'}>
+      <CardEditor />
     </div>
   )
 }
