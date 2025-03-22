@@ -3,8 +3,8 @@ import { sampleCardTitleAtom } from '../sampleCardAtoms'
 import './SampleCardEditor-styles.css'
 
 export const SAMPLE_CARD_CONFIG = {
-  TITLE_LENGHT: 18,
-  TITLE_BREAK_LENGHT: 9,
+  TITLE_LENGHT: 24,
+  TITLE_BREAK_LENGHT: 12,
 }
 
 export function SampleCardEditor() {

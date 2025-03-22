@@ -1,4 +1,4 @@
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import { Text, useTexture } from '@react-three/drei'
 import { useRef } from 'react'
 import * as THREE from 'three'
@@ -8,12 +8,22 @@ import { sampleCardTitleAtom } from '../sampleCardAtoms'
 import './SampleCardView-styles.css'
 import { currentSelectedAtom } from '@/atoms/cardTemplateAtom'
 import { SAMPLE_CARD_CONFIG } from '../SampleCardEditor/SampleCardEditor'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+
+const TEXT_POSTIONS = {
+  X: 0,
+  Y: -1,
+  Z: 0.1,
+}
+const TEXT_FONT_SIZE = 0.2
 
 function SampleCard3D() {
   const title = useAtomValue(sampleCardTitleAtom)
   const type = useAtomValue(currentSelectedAtom)
-  const texture = useTexture(`/${type}.png`)
+  const texture = useTexture(`spiderman.png`)
   const meshRef = useRef<THREE.Mesh>(null)
+
+  const gltf = useLoader(GLTFLoader, '/sampleCard.glb')
 
   useFrame(({ pointer }) => {
     if (meshRef.current) {
@@ -35,8 +45,8 @@ function SampleCard3D() {
     if (title.length <= SAMPLE_CARD_CONFIG.TITLE_BREAK_LENGHT) {
       return (
         <Text
-          position={[0, -1.3, 0.1]}
-          fontSize={0.3}
+          position={[0, TEXT_POSTIONS.Y, TEXT_POSTIONS.Z]}
+          fontSize={TEXT_FONT_SIZE}
           color="white"
           anchorX="center"
           anchorY="middle"
@@ -57,15 +67,15 @@ function SampleCard3D() {
         secondPart = title.substring(spaceIndex + 1)
       } else {
         const middleIndex = Math.floor(title.length / 2)
-        firstPart = title.substring(0, middleIndex) + '-'
+        firstPart = title.substring(0, middleIndex)
         secondPart = title.substring(middleIndex)
       }
 
       return (
         <>
           <Text
-            position={[0, -1.1, 0.1]}
-            fontSize={0.3}
+            position={[0, TEXT_POSTIONS.Y + 0.4, TEXT_POSTIONS.Z]}
+            fontSize={TEXT_FONT_SIZE}
             color="white"
             anchorX="center"
             anchorY="middle"
@@ -73,8 +83,8 @@ function SampleCard3D() {
             {firstPart}
           </Text>
           <Text
-            position={[0, -1.4, 0.1]}
-            fontSize={0.3}
+            position={[0, TEXT_POSTIONS.Y + 0.1, TEXT_POSTIONS.Z]}
+            fontSize={TEXT_FONT_SIZE}
             color="white"
             anchorX="center"
             anchorY="middle"
@@ -87,18 +97,33 @@ function SampleCard3D() {
   }
 
   return (
-    <mesh ref={meshRef}>
-      <planeGeometry args={[2.5, 3.5]} />
-      <meshStandardMaterial map={texture} transparent={true} opacity={1} />
-      {renderTitle()}
-    </mesh>
+    <group ref={meshRef}>
+      <mesh position={[0, 0, 0.08]}>
+        <planeGeometry args={[2.5, 3.2]} />
+
+        <meshStandardMaterial color="black" />
+        {renderTitle()}
+      </mesh>
+
+      <mesh position={[0, 0, 0.1]}>
+        <planeGeometry args={[2.5, 3.2]} />
+
+        <meshStandardMaterial map={texture} transparent={true} opacity={1} />
+        {renderTitle()}
+      </mesh>
+
+      <primitive object={gltf.scene} scale={2} position={[0, -2, 0]} />
+    </group>
   )
 }
 
 export function SampleCardView() {
   return (
     <div className={'SampleCardView-container'}>
-      <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
+      <Canvas
+        camera={{ position: [0, 0, 5], fov: 50 }}
+        style={{ background: 'black' }}
+      >
         <ambientLight intensity={0.5} />
         <directionalLight position={[2, 2, 5]} intensity={1} />
         <SampleCard3D />

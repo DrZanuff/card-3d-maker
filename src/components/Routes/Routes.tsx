@@ -17,7 +17,6 @@ export function Routes() {
 
   return (
     <div className={'Routes-container'}>
-      <h1>Routes</h1>
       <PageComponent />
     </div>
   )
