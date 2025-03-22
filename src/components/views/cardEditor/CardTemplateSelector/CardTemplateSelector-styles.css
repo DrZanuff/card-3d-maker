@@ -1,0 +1,25 @@
+.CardTemplateSelector-container {
+  display: flex;
+  flex-direction: column;
+
+  .card-selection {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .card-thumb {
+    display: flex;
+    flex-direction: column;
+    border: 2px solid black;
+    border-radius: 4px;
+    aspect-ratio: 1/1;
+    width: 150px;
+    cursor: pointer;
+
+    &.selected {
+      border: 2px solid red;
+    }
+  }
+}

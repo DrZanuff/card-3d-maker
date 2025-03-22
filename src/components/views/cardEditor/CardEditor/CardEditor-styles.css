@@ -1,0 +1,21 @@
+.CardEditor-container {
+  display: flex;
+  flex-direction: column;
+
+  .editor-body {
+    display: flex;
+    gap: 5px;
+  }
+
+  .left-area {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 895px;
+  }
+
+  .right-area {
+    width: 100%;
+    max-width: 380px;
+  }
+}
