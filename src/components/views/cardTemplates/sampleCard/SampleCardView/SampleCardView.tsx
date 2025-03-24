@@ -4,7 +4,7 @@ import { useRef } from 'react'
 import * as THREE from 'three'
 import { ROTATION_LIMIT } from '@/constants'
 import { useAtomValue } from 'jotai'
-import { sampleCardTitleAtom } from '../sampleCardAtoms'
+import { sampleCardPowerAtom, sampleCardTitleAtom } from '../sampleCardAtoms'
 import './SampleCardView-styles.css'
 import { currentSelectedAtom } from '@/atoms/cardTemplateAtom'
 import { SAMPLE_CARD_CONFIG } from '../SampleCardEditor/SampleCardEditor'
@@ -16,9 +16,11 @@ const TEXT_POSTIONS = {
   Z: 0.1,
 }
 const TEXT_FONT_SIZE = 0.2
+const TEXT_POWER_POSITION = { X: 0, Y: -1.5, Z: 0.3 }
 
 function SampleCard3D() {
   const title = useAtomValue(sampleCardTitleAtom)
+  const power = useAtomValue(sampleCardPowerAtom)
   const type = useAtomValue(currentSelectedAtom)
   const texture = useTexture(`spiderman.png`)
   const meshRef = useRef<THREE.Mesh>(null)
@@ -110,6 +112,22 @@ function SampleCard3D() {
 
         <meshStandardMaterial map={texture} transparent={true} opacity={1} />
         {renderTitle()}
+      </mesh>
+
+      <mesh position={[0, 0, 0]}>
+        <Text
+          position={[
+            TEXT_POWER_POSITION.X,
+            TEXT_POWER_POSITION.Y,
+            TEXT_POWER_POSITION.Z,
+          ]}
+          fontSize={TEXT_FONT_SIZE}
+          color="red"
+          anchorX="center"
+          anchorY="middle"
+        >
+          {power}
+        </Text>
       </mesh>
 
       <primitive object={gltf.scene} scale={2} position={[0, -2, 0]} />
