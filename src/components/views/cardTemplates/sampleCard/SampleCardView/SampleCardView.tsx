@@ -4,23 +4,31 @@ import { useRef } from 'react'
 import * as THREE from 'three'
 import { ROTATION_LIMIT } from '@/constants'
 import { useAtomValue } from 'jotai'
-import { sampleCardPowerAtom, sampleCardTitleAtom } from '../sampleCardAtoms'
+import {
+  sampleCardNumberAtom,
+  sampleCardPowerAtom,
+  sampleCardTitleAtom,
+} from '../sampleCardAtoms'
 import './SampleCardView-styles.css'
 import { currentSelectedAtom } from '@/atoms/cardTemplateAtom'
 import { SAMPLE_CARD_CONFIG } from '../SampleCardEditor/SampleCardEditor'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
-const TEXT_POSTIONS = {
+const TEXT_TITLE_POSTIONS = {
   X: 0,
   Y: -1,
-  Z: 0.1,
+  Z: 0.18,
 }
 const TEXT_FONT_SIZE = 0.2
+const TEXT_FONT_SIZE_SMALL = 0.1
 const TEXT_POWER_POSITION = { X: 0, Y: -1.5, Z: 0.3 }
+const TEXT_NUMBER_POSITION = { X: -1.02, Y: 1.45, Z: 0.2 }
+const TEXT_OUTLINE = 0.02
 
 function SampleCard3D() {
   const title = useAtomValue(sampleCardTitleAtom)
   const power = useAtomValue(sampleCardPowerAtom)
+  const cardNumber = useAtomValue(sampleCardNumberAtom)
   const type = useAtomValue(currentSelectedAtom)
   const texture = useTexture(`spiderman.png`)
   const meshRef = useRef<THREE.Mesh>(null)
@@ -47,11 +55,13 @@ function SampleCard3D() {
     if (title.length <= SAMPLE_CARD_CONFIG.TITLE_BREAK_LENGHT) {
       return (
         <Text
-          position={[0, TEXT_POSTIONS.Y, TEXT_POSTIONS.Z]}
+          position={[0, TEXT_TITLE_POSTIONS.Y, TEXT_TITLE_POSTIONS.Z]}
           fontSize={TEXT_FONT_SIZE}
           color="white"
           anchorX="center"
           anchorY="middle"
+          outlineColor="black"
+          outlineWidth={TEXT_OUTLINE}
         >
           {title}
         </Text>
@@ -76,20 +86,24 @@ function SampleCard3D() {
       return (
         <>
           <Text
-            position={[0, TEXT_POSTIONS.Y + 0.4, TEXT_POSTIONS.Z]}
+            position={[0, TEXT_TITLE_POSTIONS.Y + 0.4, TEXT_TITLE_POSTIONS.Z]}
             fontSize={TEXT_FONT_SIZE}
             color="white"
             anchorX="center"
             anchorY="middle"
+            outlineColor="black"
+            outlineWidth={TEXT_OUTLINE}
           >
             {firstPart}
           </Text>
           <Text
-            position={[0, TEXT_POSTIONS.Y + 0.1, TEXT_POSTIONS.Z]}
+            position={[0, TEXT_TITLE_POSTIONS.Y + 0.1, TEXT_TITLE_POSTIONS.Z]}
             fontSize={TEXT_FONT_SIZE}
             color="white"
             anchorX="center"
             anchorY="middle"
+            outlineColor="black"
+            outlineWidth={TEXT_OUTLINE}
           >
             {secondPart}
           </Text>
@@ -104,7 +118,6 @@ function SampleCard3D() {
         <planeGeometry args={[2.5, 3.2]} />
 
         <meshStandardMaterial color="black" />
-        {renderTitle()}
       </mesh>
 
       <mesh position={[0, 0, 0.1]}>
@@ -125,8 +138,26 @@ function SampleCard3D() {
           color="red"
           anchorX="center"
           anchorY="middle"
+          outlineColor="black"
+          outlineWidth={TEXT_OUTLINE}
         >
           {power}
+        </Text>
+
+        <Text
+          position={[
+            TEXT_NUMBER_POSITION.X,
+            TEXT_NUMBER_POSITION.Y,
+            TEXT_NUMBER_POSITION.Z,
+          ]}
+          fontSize={TEXT_FONT_SIZE_SMALL}
+          color="yellow"
+          anchorX="center"
+          anchorY="middle"
+          outlineColor="black"
+          outlineWidth={TEXT_OUTLINE}
+        >
+          {cardNumber}
         </Text>
       </mesh>
 
