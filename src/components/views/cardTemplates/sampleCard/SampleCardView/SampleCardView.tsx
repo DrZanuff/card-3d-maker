@@ -3,14 +3,18 @@ import { Text, useTexture } from '@react-three/drei'
 import { useRef } from 'react'
 import * as THREE from 'three'
 import { ROTATION_LIMIT } from '@/constants'
-import { useAtomValue } from 'jotai'
+import { useSetAtom, useAtomValue } from 'jotai'
 import {
   sampleCardNumberAtom,
   sampleCardPowerAtom,
   sampleCardTitleAtom,
+  sampleCardImageAtom,
+  sampleCardImageSizeAtom,
+  sampleCardBackgroundAtom,
+  sampleAnimateBackgroundAtom,
+  sampleCardIsMouseOverAtom,
 } from '../sampleCardAtoms'
 import './SampleCardView-styles.css'
-import { currentSelectedAtom } from '@/atoms/cardTemplateAtom'
 import { SAMPLE_CARD_CONFIG } from '../SampleCardEditor/SampleCardEditor'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
@@ -29,13 +33,27 @@ function SampleCard3D() {
   const title = useAtomValue(sampleCardTitleAtom)
   const power = useAtomValue(sampleCardPowerAtom)
   const cardNumber = useAtomValue(sampleCardNumberAtom)
-  const type = useAtomValue(currentSelectedAtom)
-  const texture = useTexture(`spiderman.png`)
+  const cardImage = useAtomValue(sampleCardImageAtom)
+  const cardImageSize = useAtomValue(sampleCardImageSizeAtom)
+  const cardBackground = useAtomValue(sampleCardBackgroundAtom)
+  const isBackgroundAnimated = useAtomValue(sampleAnimateBackgroundAtom)
+
+  const texture = useTexture(cardImage || 'template.png')
+  const background = useTexture(cardBackground || 'background.jpg')
+
+  const isMouseOver = useAtomValue(sampleCardIsMouseOverAtom)
+
+  texture.repeat.set(cardImageSize, cardImageSize)
+  texture.offset.set((1 - cardImageSize) / 2, (1 - cardImageSize) / 2)
+
+  texture.wrapS = THREE.ClampToEdgeWrapping
+  texture.wrapT = THREE.ClampToEdgeWrapping
+
   const meshRef = useRef<THREE.Mesh>(null)
 
   const gltf = useLoader(GLTFLoader, '/sampleCard.glb')
 
-  useFrame(({ pointer }) => {
+  useFrame(({ pointer, clock }) => {
     if (meshRef.current) {
       const maxRotation = ROTATION_LIMIT
       meshRef.current.rotation.x = THREE.MathUtils.lerp(
@@ -48,6 +66,33 @@ function SampleCard3D() {
         pointer.x * maxRotation,
         0.1,
       )
+
+      if (!isMouseOver) {
+        const time = clock.elapsedTime
+
+        const angleX = Math.sin(time) * maxRotation
+        const angleY = Math.cos(time) * maxRotation
+
+        meshRef.current.rotation.x = THREE.MathUtils.lerp(
+          meshRef.current.rotation.x,
+          angleX,
+          0.1,
+        )
+        meshRef.current.rotation.y = THREE.MathUtils.lerp(
+          meshRef.current.rotation.y,
+          angleY,
+          0.1,
+        )
+      }
+    }
+
+    const time = clock.elapsedTime
+
+    if (background && isBackgroundAnimated) {
+      const offsetX = Math.sin(time) * 0.005
+      const offsetY = Math.cos(time) * 0.005
+
+      background.offset.set(offsetX, offsetY)
     }
   })
 
@@ -114,13 +159,23 @@ function SampleCard3D() {
 
   return (
     <group ref={meshRef}>
-      <mesh position={[0, 0, 0.08]}>
+      <mesh position={[0, 0, 0.04]}>
         <planeGeometry args={[2.5, 3.2]} />
 
         <meshStandardMaterial color="black" />
       </mesh>
 
-      <mesh position={[0, 0, 0.1]}>
+      <mesh position={[0, 0, 0.06]}>
+        <planeGeometry args={[2.5, 3.2]} />
+
+        <meshStandardMaterial
+          map={background}
+          color="white"
+          transparent={true}
+        />
+      </mesh>
+
+      <mesh position={[0, 0, 0.08]}>
         <planeGeometry args={[2.5, 3.2]} />
 
         <meshStandardMaterial map={texture} transparent={true} opacity={1} />
@@ -162,16 +217,24 @@ function SampleCard3D() {
       </mesh>
 
       <primitive object={gltf.scene} scale={2} position={[0, -2, 0]} />
+      <ambientLight intensity={0.75} />
     </group>
   )
 }
 
 export function SampleCardView() {
+  const setMouseOver = useSetAtom(sampleCardIsMouseOverAtom)
+
+  const handleMouseEnter = () => setMouseOver(true)
+  const handleMouseLeave = () => setMouseOver(false)
+
   return (
     <div className={'SampleCardView-container'}>
       <Canvas
         camera={{ position: [0, 0, 5], fov: 50 }}
         style={{ background: 'black' }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <ambientLight intensity={0.5} />
         <directionalLight position={[2, 2, 5]} intensity={1} />

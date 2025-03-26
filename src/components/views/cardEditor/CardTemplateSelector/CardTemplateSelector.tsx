@@ -14,7 +14,6 @@ export function CardTemplateSelector() {
 
   return (
     <div className={'CardTemplateSelector-container'}>
-      <h1>CardTemplateSelector</h1>
       <div className="card-selection">
         {cardTemplates.map((card, index) => {
           return (
